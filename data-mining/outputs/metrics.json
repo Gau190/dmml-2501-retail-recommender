@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-23T02:54:19.421636+00:00",
+  "n_transactions_total_clean": 39517,
+  "n_transactions_used_for_mining": 31282,
+  "n_unique_skus_total": 4725,
+  "n_skus_used_for_mining": 300,
+  "top_n_items_cap": 300,
+  "coverage_pct_after_cap": 79.160867,
+  "min_support": 0.02,
+  "min_confidence": 0.5,
+  "apriori": {
+    "n_itemsets": 433,
+    "runtime_sec": 2.179993
+  },
+  "fpgrowth": {
+    "n_itemsets": 433,
+    "runtime_sec": 1.046794
+  },
+  "itemsets_equal": true,
+  "n_rules_total": 83,
+  "n_rules_1to1_exported": 67,
+  "top_rules_preview": [
+    {
+      "antecedent_sku": "22698",
+      "consequent_sku": "22697",
+      "antecedent_desc": "PINK REGENCY TEACUP AND SAUCER",
+      "consequent_desc": "GREEN REGENCY TEACUP AND SAUCER",
+      "support": 0.02762,
+      "confidence": 0.84375,
+      "lift": 19.565743
+    },
+    {
+      "antecedent_sku": "22698",
+      "consequent_sku": "22699",
+      "antecedent_desc": "PINK REGENCY TEACUP AND SAUCER",
+      "consequent_desc": "ROSES REGENCY TEACUP AND SAUCER",
+      "support": 0.025957,
+      "confidence": 0.792969,
+      "lift": 17.56774
+    },
+    {
+      "antecedent_sku": "21086",
+      "consequent_sku": "21094",
+      "antecedent_desc": "SET/6 RED SPOTTY PAPER CUPS",
+      "consequent_desc": "SET/6 RED SPOTTY PAPER PLATES",
+      "support": 0.020811,
+      "confidence": 0.774078,
+      "lift": 24.708901
+    },
+    {
+      "antecedent_sku": "22697",
+      "consequent_sku": "22699",
+      "antecedent_desc": "GREEN REGENCY TEACUP AND SAUCER",
+      "consequent_desc": "ROSES REGENCY TEACUP AND SAUCER",
+      "support": 0.033054,
+      "confidence": 0.766494,
+      "lift": 16.981201
+    },
+    {
+      "antecedent_sku": "21231",
+      "consequent_sku": "21232",
+      "antecedent_desc": "SWEETHEART CERAMIC TRINKET BOX",
+      "consequent_desc": "STRAWBERRY CERAMIC TRINKET BOX",
+      "support": 0.035452,
+      "confidence": 0.750338,
+      "lift": 9.796362
+    },
+    {
+      "antecedent_sku": "22699",
+      "consequent_sku": "22697",
+      "antecedent_desc": "ROSES REGENCY TEACUP AND SAUCER",
+      "consequent_desc": "GREEN REGENCY TEACUP AND SAUCER",
+      "support": 0.033054,
+      "confidence": 0.732295,
+      "lift": 16.981201
+    },
+    {
+      "antecedent_sku": "82581",
+      "consequent_sku": "82580",
+      "antecedent_desc": "TOILET METAL SIGN",
+      "consequent_desc": "BATHROOM METAL SIGN",
+      "support": 0.021162,
+      "confidence": 0.727473,
+      "lift": 17.136141
+    },
+    {
+      "antecedent_sku": "21733",
+      "consequent_sku": "85123A",
+      "antecedent_desc": "RED HANGING HEART T-LIGHT HOLDER",
+      "consequent_desc": "WHITE HANGING HEART T-LIGHT HOLDER",
+      "support": 0.039703,
+      "confidence": 0.712156,
+      "lift": 4.180458
+    },
+    {
+      "antecedent_sku": "84997C",
+      "consequent_sku": "84997D",
+      "antecedent_desc": "BLUE 3 PIECE MINI DOTS CUTLERY SET",
+      "consequent_desc": "PINK 3 PIECE MINI DOTS CUTLERY SET",
+      "support": 0.022825,
+      "confidence": 0.702065,
+      "lift": 18.965453
+    },
+    {
+      "antecedent_sku": "21094",
+      "consequent_sku": "21080",
+      "antecedent_desc": "SET/6 RED SPOTTY PAPER PLATES",
+      "consequent_desc": "SET/20 RED RETROSPOT PAPER NAPKINS",
+      "support": 0.021898,
+      "confidence": 0.69898,
+      "lift": 10.357878
+    }
+  ]
+}
