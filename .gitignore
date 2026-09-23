@@ -1,0 +1,16 @@
+# Python
+data-mining/.venv/
+data-mining/__pycache__/
+data-mining/**/__pycache__/
+data-mining/data/raw/*
+!data-mining/data/raw/.gitkeep
+data-mining/data/processed/*
+!data-mining/data/processed/.gitkeep
+
+# .NET
+webapp/**/bin/
+webapp/**/obj/
+webapp/**/*.db
+
+# OS
+.DS_Store
