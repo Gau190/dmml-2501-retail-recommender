@@ -460,15 +460,80 @@ def main() -> None:
 
     add_heading(doc, "3.5 Thiết kế màn hình", level=2)
     for item in [
-        "Trang chủ: danh mục sản phẩm dạng danh sách theo danh mục.",
-        "Trang chi tiết sản phẩm: thông tin sản phẩm + khối “Khách hàng cũng "
-        "mua” (tối đa 4 sản phẩm) + nút “Thêm vào giỏ”.",
-        "Trang giỏ hàng: danh sách sản phẩm trong giỏ, khối “Gợi ý cho giỏ "
-        "hàng” (tối đa 6 sản phẩm), nút “Đặt hàng”.",
-        "Trang quản trị luật kết hợp: bảng liệt kê toàn bộ luật (antecedent, "
-        "consequent, support, confidence, lift).",
+        "Trang chủ: dải số liệu hệ thống (tổng sản phẩm, tổng luật kết hợp, số sản "
+        "phẩm có gợi ý) + lưới “Sản phẩm nổi bật” — 12 sản phẩm được chọn "
+        "vì có nhiều luật kết hợp nhất, đảm bảo cú bấm đầu tiên của khách hàng luôn "
+        "thấy khối gợi ý hoạt động.",
+        "Trang danh sách sản phẩm: ô tìm kiếm theo tên/SKU + phân trang 24 sản "
+        "phẩm/trang, badge “Có gợi ý” trên card, trạng thái rỗng kèm nút "
+        "xoá bộ lọc khi tìm kiếm không ra kết quả.",
+        "Trang chi tiết sản phẩm: breadcrumb điều hướng + khối “Khách hàng "
+        "cũng mua” (tối đa 4 sản phẩm, badge độ tin cậy và lift) + nút "
+        "“Thêm vào giỏ”.",
+        "Trang giỏ hàng: bảng sản phẩm + tóm tắt tổng tiền, khối “Có thể bạn "
+        "cũng thích” (tối đa 6 sản phẩm), nút “Đặt hàng”, trạng thái "
+        "rỗng dẫn về trang sản phẩm.",
+        "Trang quản trị luật kết hợp: breadcrumb + bảng liệt kê toàn bộ luật "
+        "(antecedent, consequent, support, confidence, lift) với badge màu theo "
+        "mức độ tin cậy và ô lọc nhanh theo SKU phía client.",
+        "Navbar: badge số lượng sản phẩm trong giỏ cập nhật theo Session, hiển thị "
+        "ngay sau khi “Thêm vào giỏ” mà không cần vào trang giỏ hàng.",
     ]:
         doc.add_paragraph(item, style="List Bullet")
+
+    add_heading(doc, "3.6 Rà soát luồng người dùng (UX review)", level=2)
+    doc.add_paragraph(
+        "Trước khi hoàn thiện giao diện, nhóm vẽ lại luồng thực tế của người dùng "
+        "qua hệ thống để xác định đúng những màn hình cần đầu tư thiết kế, thay vì "
+        "làm đẹp toàn bộ theo cảm tính. Luồng chính (khách hàng mua sắm):"
+    )
+    for i, text in enumerate([
+        "Trang chủ — xem dải số liệu hệ thống và 12 sản phẩm nổi bật (chắc chắn có "
+        "gợi ý mua kèm).",
+        "Trang sản phẩm — tìm kiếm/duyệt catalog 4.725 sản phẩm qua ô tìm kiếm và "
+        "phân trang, nhận diện nhanh sản phẩm có gợi ý qua badge.",
+        "Trang chi tiết sản phẩm — xem giá, thêm vào giỏ, xem tối đa 4 gợi ý "
+        "“Khách hàng cũng mua” kèm confidence/lift.",
+        "Badge giỏ hàng trên navbar cập nhật ngay — khách hàng biết thao tác vừa "
+        "thành công mà không cần rời trang.",
+        "Trang giỏ hàng — xem lại sản phẩm, tổng tiền, và gợi ý tổng hợp “Có "
+        "thể bạn cũng thích” (tối đa 6 sản phẩm, gộp theo confidence lớn nhất).",
+        "Đặt hàng — tạo Order/OrderItem, xoá giỏ hàng, quay về trang chủ kèm thông "
+        "báo thành công.",
+    ], start=1):
+        doc.add_paragraph(f"{i}. {text}")
+    doc.add_paragraph(
+        "Luồng phụ (quản trị viên): vào mục “Luật kết hợp” trên navbar → "
+        "xem toàn bộ 67 luật kèm badge màu theo độ tin cậy → lọc nhanh theo SKU — "
+        "phục vụ việc xác minh mô hình đã tích hợp thật vào hệ thống."
+    )
+    doc.add_paragraph(
+        "Quá trình rà soát luồng còn phát hiện 2 vấn đề kiến trúc thông tin thực sự "
+        "ảnh hưởng trải nghiệm (không chỉ vấn đề thẩm mỹ):"
+    )
+    for item in [
+        "Trang chủ và danh sách sản phẩm ban đầu hiển thị toàn bộ 4.725 sản phẩm "
+        "trên 1 trang, không tìm kiếm, không phân trang — không dùng được ở quy mô "
+        "dữ liệu thật. Đã khắc phục bằng tìm kiếm + phân trang 24 sản phẩm/trang.",
+        "Chỉ 52/4.725 SKU thực sự có luật kết hợp làm antecedent, nên khách hàng "
+        "bấm ngẫu nhiên vào catalog rất dễ gặp “Chưa có dữ liệu khuyến "
+        "nghị” — làm mờ giá trị của chính tính năng đang demo. Đã khắc phục "
+        "bằng cách ưu tiên hiển thị 12 sản phẩm có nhiều gợi ý nhất trên trang chủ "
+        "và gắn badge “Có gợi ý” trong danh sách sản phẩm.",
+    ]:
+        doc.add_paragraph(item, style="List Bullet")
+    doc.add_paragraph(
+        "Trong quá trình QC bằng cách chạy thật (không chỉ đọc code), nhóm cũng "
+        "phát hiện và sửa 2 lỗi giao diện thực tế: (1) thẻ View Component hiển thị "
+        "số lượng giỏ hàng trên navbar không được Razor nhận diện do thiếu khai báo "
+        "@addTagHelper cho assembly của dự án; (2) toàn bộ badge trên site dùng "
+        "lớp tiện ích text-bg-* của Bootstrap 5.2 trong khi thư viện Bootstrap được "
+        "nhúng sẵn trong dự án là bản 5.1.0 — khiến badge hiển thị chữ trắng trên "
+        "nền trong suốt (không đọc được). Cả 2 lỗi chỉ lộ ra khi chạy ứng dụng thật "
+        "và chụp ảnh màn hình, không thấy được qua việc đọc code hay chạy unit "
+        "test — minh hoạ vì sao khâu kiểm thử thủ công trên trình duyệt thật vẫn "
+        "cần thiết dù đã có test tự động."
+    )
 
     doc.add_page_break()
 
@@ -575,13 +640,23 @@ def main() -> None:
         f"tổng {vn(METRICS['n_unique_skus_total'])} SKU của catalog) cùng "
         f"{METRICS['n_rules_1to1_exported']} luật kết hợp vào SQLite."
     )
-    add_image_with_caption(doc, ASSETS / "01_home.png", "Hình 4.1. Trang danh mục sản phẩm (dữ liệu thật từ Online Retail II)")
     add_image_with_caption(
-        doc, ASSETS / "02_product_detail.png",
-        "Hình 4.2. Trang chi tiết sản phẩm PINK REGENCY TEACUP AND SAUCER (SKU 22698) "
+        doc, ASSETS / "01_home.png",
+        "Hình 4.1. Trang chủ với dải số liệu hệ thống (4.725 sản phẩm, 67 luật kết "
+        "hợp, 52 sản phẩm có gợi ý) và lưới “Sản phẩm nổi bật” — ưu tiên "
+        "hiển thị các sản phẩm có nhiều luật kết hợp nhất",
+    )
+    add_image_with_caption(
+        doc, ASSETS / "02_products_search.png",
+        "Hình 4.2. Trang danh sách sản phẩm với tìm kiếm thật — tra “teacup” "
+        "trả về đúng 4 sản phẩm, 3/4 sản phẩm có badge “Có gợi ý”",
+    )
+    add_image_with_caption(
+        doc, ASSETS / "03_product_detail.png",
+        "Hình 4.3. Trang chi tiết sản phẩm PINK REGENCY TEACUP AND SAUCER (SKU 22698) "
         "hiển thị đúng 2 khuyến nghị từ rules.csv thật: GREEN REGENCY TEACUP AND "
-        "SAUCER (confidence 84%, lift 19,57) và ROSES REGENCY TEACUP AND SAUCER "
-        "(confidence 79%, lift 17,57)",
+        "SAUCER (tin cậy 84%, lift 19,57) và ROSES REGENCY TEACUP AND SAUCER "
+        "(tin cậy 79%, lift 17,57)",
     )
     doc.add_paragraph(
         "Chức năng gợi ý theo giỏ hàng cũng được xác nhận đúng với dữ liệu thật: khi "
@@ -589,12 +664,14 @@ def main() -> None:
         "PAPER CUPS (21086), hệ thống gợi ý đúng 3 sản phẩm GREEN REGENCY TEACUP AND "
         "SAUCER, ROSES REGENCY TEACUP AND SAUCER và SET/6 RED SPOTTY PAPER PLATES — "
         "khớp chính xác với các luật antecedent tương ứng trong rules.csv, không có "
-        "sản phẩm nào trùng với 2 sản phẩm đã có sẵn trong giỏ."
+        "sản phẩm nào trùng với 2 sản phẩm đã có sẵn trong giỏ; badge số lượng trên "
+        "navbar (View Component CartSummary) cũng cập nhật đúng theo Session."
     )
     add_image_with_caption(
-        doc, ASSETS / "03_admin_rules.png",
-        f"Hình 4.3. Trang quản trị hiển thị đầy đủ {METRICS['n_rules_1to1_exported']} "
-        "luật kết hợp đã khai phá và tích hợp vào hệ thống",
+        doc, ASSETS / "04_admin_rules.png",
+        f"Hình 4.4. Trang quản trị hiển thị đầy đủ {METRICS['n_rules_1to1_exported']} "
+        "luật kết hợp đã khai phá và tích hợp vào hệ thống, badge màu theo mức độ "
+        "tin cậy (xanh lá ≥ 50%)",
     )
 
     add_heading(doc, "4.4 Kiểm thử", level=2)
@@ -605,9 +682,11 @@ def main() -> None:
             ["TC01", "Chạy run_pipeline.py từ đầu trên dữ liệu Online Retail II thật", "Đạt — sinh đủ products.csv, rules.csv, metrics.json"],
             ["TC02", "So sánh itemsets Apriori vs FP-Growth", f"Đạt — itemsets_equal = {METRICS['itemsets_equal']} ({METRICS['apriori']['n_itemsets']} tập mục mỗi thuật toán)"],
             ["TC03", "dotnet build + dotnet test", "Đạt — build 0 lỗi/0 cảnh báo, 6/6 test pass"],
-            ["TC04", "Mở trang chi tiết sản phẩm 22698 → hiển thị đúng khuyến nghị", "Đạt — đúng 2 luật thật (xem Hình 4.2)"],
+            ["TC04", "Mở trang chi tiết sản phẩm 22698 → hiển thị đúng khuyến nghị", "Đạt — đúng 2 luật thật (xem Hình 4.3)"],
             ["TC05", "Thêm 2 sản phẩm vào giỏ → gợi ý tổng hợp đúng quy tắc gộp", "Đạt — 3 gợi ý đúng, không trùng sản phẩm đã có trong giỏ"],
             ["TC06", "dotnet run thật + curl kiểm tra /, /Products, /Admin/Rules", "Đạt — cả 3 endpoint trả HTTP 200 với dữ liệu thật"],
+            ["TC07", "Tìm kiếm “teacup” + phân trang trang 2 trên danh sách 4.725 sản phẩm", "Đạt — 4 kết quả đúng (xem Hình 4.2), trang 2 trả sản phẩm khác trang 1"],
+            ["TC08", "Badge số lượng giỏ hàng trên navbar + màu badge Confidence trên trang Admin", "Đạt sau khi sửa 2 lỗi phát hiện qua chạy thật: thiếu @addTagHelper cho ViewComponent, và lớp text-bg-* không tương thích Bootstrap 5.1.0"],
         ],
         widths=[2, 7, 6.5],
     )

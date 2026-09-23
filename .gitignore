@@ -14,3 +14,4 @@ webapp/**/*.db
 
 # OS
 .DS_Store
+~$*.docx

@@ -1,0 +1,404 @@
+<title>Luồng người dùng RetailRecommender</title>
+<style>
+  :root{
+    --bg:#F5F2EA;
+    --surface:#FFFFFF;
+    --ink:#1E1B16;
+    --ink-soft:#5B564C;
+    --line:#DFD8C8;
+    --accent:#28433B;      /* deep forest ink — primary/go actions */
+    --accent-soft:#E4ECE7;
+    --teal:#3E8E7E;        /* recommendation highlight */
+    --teal-soft:#E1F2EE;
+    --amber:#B8722A;       /* decision / caution */
+    --amber-soft:#F6E8D8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#16140F;
+      --surface:#211D16;
+      --ink:#F1ECDF;
+      --ink-soft:#B8AF9C;
+      --line:#3A3527;
+      --accent:#8FC1AE;
+      --accent-soft:#243430;
+      --teal:#6FC7B4;
+      --teal-soft:#1C332E;
+      --amber:#E2A25E;
+      --amber-soft:#332617;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#16140F;
+    --surface:#211D16;
+    --ink:#F1ECDF;
+    --ink-soft:#B8AF9C;
+    --line:#3A3527;
+    --accent:#8FC1AE;
+    --accent-soft:#243430;
+    --teal:#6FC7B4;
+    --teal-soft:#1C332E;
+    --amber:#E2A25E;
+    --amber-soft:#332617;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    padding-inline:16px;
+    padding-block:32px;
+    line-height:1.55;
+  }
+  .wrap{max-width:1040px;margin-inline:auto;}
+
+  header{margin-bottom:36px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'Zilla Slab', Georgia, serif;
+    font-weight:700;
+    font-size:clamp(28px,4.2vw,42px);
+    line-height:1.12;
+    margin:0 0 12px;
+    text-wrap:balance;
+    color:var(--ink);
+  }
+  .lede{
+    max-width:62ch;
+    color:var(--ink-soft);
+    font-size:16px;
+    margin:0;
+  }
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 18px;
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+  }
+  .legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:13px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .dot{width:10px;height:10px;border-radius:2px;flex:none;}
+  .dot.entry{background:var(--ink-soft);}
+  .dot.screen{background:var(--surface);border:1.5px solid var(--accent);}
+  .dot.rec{background:var(--teal);}
+  .dot.decision{background:var(--amber);}
+
+  section{margin-bottom:44px;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+  }
+  h2{
+    font-family:'Zilla Slab', Georgia, serif;
+    font-weight:600;
+    font-size:22px;
+    margin:0;
+  }
+  .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    background:var(--accent-soft);
+    border:1px solid var(--line);
+    padding:3px 9px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .section-sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 18px;max-width:68ch;}
+
+  .diagram-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px;
+    overflow-x:auto;
+  }
+  .diagram-card pre.mermaid{margin:0;min-width:640px;}
+
+  .findings{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+    gap:14px;
+    margin-top:18px;
+  }
+  .finding{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    border-radius:4px;
+    padding:16px 18px;
+  }
+  .finding.fixed{border-left-color:var(--teal);}
+  .finding h3{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    margin:0 0 6px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .finding h3 .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    padding:2px 6px;
+    border-radius:3px;
+    background:var(--amber-soft);
+    color:var(--amber);
+  }
+  .finding.fixed h3 .badge{background:var(--teal-soft);color:var(--teal);}
+  .finding p{margin:0;font-size:13.5px;color:var(--ink-soft);}
+
+  .touchpoints{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:14px;
+    margin-top:18px;
+  }
+  .tp{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+  }
+  .tp .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--teal);
+    letter-spacing:.06em;
+  }
+  .tp h3{font-size:15px;margin:6px 0 6px;font-family:'IBM Plex Sans';font-weight:600;}
+  .tp p{margin:0;font-size:13px;color:var(--ink-soft);}
+
+  footer{
+    margin-top:48px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">RetailRecommender · UX flow review</p>
+    <h1>Luồng người dùng &amp; điểm chạm của tính năng khuyến nghị</h1>
+    <p class="lede">
+      Sơ đồ luồng thực tế của hệ thống quản lý bán lẻ tích hợp khuyến nghị sản phẩm
+      dựa trên luật kết hợp (Apriori/FP&#8209;Growth). Vẽ lại sau khi rà soát mã nguồn
+      Controllers/Views hiện có, kèm các điểm bất hợp lý về UX được phát hiện và
+      cách khắc phục trong đợt hoàn thiện giao diện này.
+    </p>
+    <div class="legend">
+      <span><i class="dot entry"></i>Điểm bắt đầu / hành động</span>
+      <span><i class="dot screen"></i>Màn hình</span>
+      <span><i class="dot rec"></i>Điểm chạm khuyến nghị (mô hình luật kết hợp)</span>
+      <span><i class="dot decision"></i>Rẽ nhánh / trạng thái rỗng</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Luồng chính — Khách hàng mua sắm</h2>
+      <span class="tag">Home → Products → Cart → Orders</span>
+    </div>
+    <p class="section-sub">
+      Từ lúc vào trang chủ tới lúc đặt hàng thành công. Hai nút thắt tô teal là nơi
+      mô hình luật kết hợp thực sự xuất hiện trước mắt khách hàng.
+    </p>
+    <div class="diagram-card">
+<pre class="mermaid">
+%%{init: {'theme':'base', 'themeVariables': {
+  'fontFamily':'IBM Plex Sans',
+  'primaryColor':'#FFFFFF',
+  'primaryBorderColor':'#28433B',
+  'primaryTextColor':'#1E1B16',
+  'lineColor':'#8A8371',
+  'tertiaryColor':'#F5F2EA'
+}}}%%
+flowchart TD
+    S(["Khách hàng mở website"]) --> Home
+
+    subgraph HomeS["Trang chủ"]
+      Home["Sản phẩm nổi bật — 12 SKU<br/>có luật kết hợp + dải số liệu hệ thống"]
+    end
+
+    Home -->|"Xem tất cả sản phẩm"| List
+    Home -->|"Bấm 1 sản phẩm nổi bật<br/>(chắc chắn có gợi ý)"| Detail
+
+    subgraph ListS["Danh sách sản phẩm"]
+      List["Tìm kiếm theo tên/SKU<br/>+ phân trang 24 sp/trang"]
+      List --> Empty{"Không tìm thấy?"}
+      Empty -->|"Có kết quả"| List
+      Empty -->|"Rỗng"| EmptyState["Trạng thái rỗng<br/>+ nút Xoá bộ lọc"]
+      EmptyState --> List
+    end
+
+    List -->|"Bấm 1 sản phẩm"| Detail
+
+    subgraph DetailS["Chi tiết sản phẩm"]
+      Detail["Giá, mô tả, SKU"]
+      Detail --> Rec["★ Khách hàng cũng mua<br/>tối đa 4 gợi ý (confidence, lift)"]
+    end
+
+    Rec -->|"Bấm gợi ý"| Detail
+    Detail -->|"Thêm vào giỏ"| Badge[["Badge số lượng<br/>cập nhật ngay trên navbar"]]
+
+    Badge --> Choice{"Tiếp tục mua<br/>hay thanh toán?"}
+    Choice -->|"Tiếp tục xem"| List
+    Choice -->|"Vào giỏ hàng"| Cart
+
+    subgraph CartS["Giỏ hàng"]
+      Cart["Danh sách sp + tổng tiền"]
+      Cart --> RecCart["★ Có thể bạn cũng thích<br/>tối đa 6 gợi ý tổng hợp<br/>(gộp theo confidence lớn nhất)"]
+      RecCart -->|"Thêm gợi ý vào giỏ"| Cart
+    end
+
+    Cart -->|"Đặt hàng"| Order["Tạo Order + OrderItem<br/>xoá giỏ hàng trong Session"]
+    Order --> Done["Quay về Trang chủ<br/>+ thông báo 'Đặt hàng #id thành công'"]
+
+    classDef screen fill:#FFFFFF,stroke:#28433B,stroke-width:1.4px,color:#1E1B16;
+    classDef rec fill:#E1F2EE,stroke:#3E8E7E,stroke-width:1.6px,color:#1E1B16;
+    classDef decision fill:#F6E8D8,stroke:#B8722A,stroke-width:1.4px,color:#1E1B16;
+    classDef entry fill:#E9E4D6,stroke:#8A8371,stroke-width:1.2px,color:#1E1B16;
+
+    class Home,List,Detail,Cart screen;
+    class Rec,RecCart,Badge rec;
+    class Empty,Choice decision;
+    class S,EmptyState,Order,Done entry;
+</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Luồng phụ — Quản trị viên kiểm tra mô hình</h2>
+      <span class="tag">Admin/Rules</span>
+    </div>
+    <p class="section-sub">
+      Chức năng minh bạch hoá: cho phép xác minh mô hình luật kết hợp đã được tích
+      hợp thật vào hệ thống, không chỉ ẩn trong code.
+    </p>
+    <div class="diagram-card">
+<pre class="mermaid">
+%%{init: {'theme':'base', 'themeVariables': {
+  'fontFamily':'IBM Plex Sans',
+  'primaryColor':'#FFFFFF',
+  'primaryBorderColor':'#28433B',
+  'primaryTextColor':'#1E1B16',
+  'lineColor':'#8A8371',
+  'tertiaryColor':'#F5F2EA'
+}}}%%
+flowchart LR
+    A(["Quản trị viên"]) --> B["Trang Luật kết hợp"]
+    B --> C["Bảng 67 luật:<br/>antecedent → consequent,<br/>support · confidence · lift"]
+    C --> D["Tìm nhanh theo SKU<br/>(lọc phía client)"]
+
+    classDef screen fill:#FFFFFF,stroke:#28433B,stroke-width:1.4px,color:#1E1B16;
+    classDef rec fill:#E1F2EE,stroke:#3E8E7E,stroke-width:1.6px,color:#1E1B16;
+    classDef entry fill:#E9E4D6,stroke:#8A8371,stroke-width:1.2px,color:#1E1B16;
+    class B,D screen;
+    class C rec;
+    class A entry;
+</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Bốn điểm chạm trực tiếp của mô hình</h2>
+    </div>
+    <p class="section-sub">
+      Mọi nơi người dùng thật sự "nhìn thấy" kết quả khai phá luật kết hợp, không
+      phải chỉ trong code hay báo cáo.
+    </p>
+    <div class="touchpoints">
+      <div class="tp">
+        <p class="n">01</p>
+        <h3>Trang chủ</h3>
+        <p>Chọn đúng 12 sản phẩm có luật kết hợp để làm nổi bật — đảm bảo cú bấm đầu tiên của khách hàng luôn thấy tính năng hoạt động.</p>
+      </div>
+      <div class="tp">
+        <p class="n">02</p>
+        <h3>Chi tiết sản phẩm</h3>
+        <p>"Khách hàng cũng mua" — tối đa 4 gợi ý, sắp xếp theo confidence rồi lift giảm dần, loại trừ chính sản phẩm đang xem.</p>
+      </div>
+      <div class="tp">
+        <p class="n">03</p>
+        <h3>Giỏ hàng</h3>
+        <p>"Có thể bạn cũng thích" — gộp gợi ý từ mọi sản phẩm trong giỏ theo confidence lớn nhất, loại các sản phẩm đã có sẵn.</p>
+      </div>
+      <div class="tp">
+        <p class="n">04</p>
+        <h3>Trang quản trị</h3>
+        <p>Toàn bộ 67 luật kết hợp hiển thị công khai để xác minh — chứng minh mô hình đã tích hợp thật, đúng yêu cầu 2.4 của đề bài.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Vấn đề UX phát hiện khi review &amp; cách khắc phục</h2>
+    </div>
+    <p class="section-sub">
+      Không chỉ trang trí lại giao diện — 2 lỗi kiến trúc thông tin ảnh hưởng trực
+      tiếp tới trải nghiệm được sửa trong cùng đợt này.
+    </p>
+    <div class="findings">
+      <div class="finding">
+        <h3><span class="badge">Trước</span>Danh mục 4.725 sản phẩm dồn 1 trang</h3>
+        <p>Home và Products render toàn bộ catalog không phân trang, không tìm kiếm — gần như không dùng được ở quy mô dữ liệu thật.</p>
+      </div>
+      <div class="finding fixed">
+        <h3><span class="badge">Sau</span>Tìm kiếm + phân trang 24/trang</h3>
+        <p>Products/Index nhận query <code>?q=&amp;page=</code>, lọc theo tên/SKU, có điều hướng trang và trạng thái rỗng rõ ràng.</p>
+      </div>
+      <div class="finding">
+        <h3><span class="badge">Trước</span>Chỉ 300/4.725 SKU có gợi ý</h3>
+        <p>Khách hàng bấm ngẫu nhiên vào 1 trong 4.425 sản phẩm còn lại rất dễ gặp "Chưa có dữ liệu khuyến nghị" — làm mờ giá trị của chính tính năng đang demo.</p>
+      </div>
+      <div class="finding fixed">
+        <h3><span class="badge">Sau</span>Badge "Có gợi ý" + sản phẩm nổi bật</h3>
+        <p>Trang chủ ưu tiên hiển thị 12 sản phẩm chắc chắn có luật kết hợp; danh sách sản phẩm gắn badge để khách hàng biết trước khi bấm vào.</p>
+      </div>
+      <div class="finding">
+        <h3><span class="badge">Trước</span>Nhóm theo "Category" vô nghĩa</h3>
+        <p>Online Retail II không có category thật — mọi sản phẩm đều gán "General", khiến việc group theo danh mục trên trang chủ chỉ tạo ra 1 tiêu đề rỗng thông tin.</p>
+      </div>
+      <div class="finding fixed">
+        <h3><span class="badge">Sau</span>Dải số liệu hệ thống thay cho category rỗng</h3>
+        <p>Thay group theo category bằng 1 dải số liệu thật: tổng sản phẩm, tổng luật kết hợp, số sản phẩm có gợi ý — thông tin có ý nghĩa hơn với người dùng.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    BTL Đề 2501 — Nhóm N21 · Nguồn: rà soát Controllers/Views thực tế của RetailRecommender.Web, đối chiếu dữ liệu thật (4.725 sản phẩm, 67 luật kết hợp) từ data-mining/outputs/metrics.json
+  </footer>
+</div>

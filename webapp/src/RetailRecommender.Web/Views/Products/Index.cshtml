@@ -1,5 +1,11 @@
-@model IEnumerable<RetailRecommender.Web.Models.Product>
-@{ ViewData["Title"] = "Sản phẩm"; }
-<h1>Sản phẩm</h1><table class="table"><thead><tr><th>SKU</th><th>Mô tả</th><th>Giá</th><th></th></tr></thead><tbody>
-@foreach (var p in Model) { <tr><td>@p.Sku</td><td>@p.Description</td><td>@p.UnitPrice.ToString("N2")</td><td><a asp-action="Details" asp-route-sku="@p.Sku">Xem</a></td></tr> }
-</tbody></table>
+@model RetailRecommender.Web.Controllers.ProductListViewModel
+@{ ViewData["Title"] = "Sản phẩm"; var startPage = Math.Max(1, Model.Page - 2); var endPage = Math.Min(Model.TotalPages, Model.Page + 2); }
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4"><div><h1 class="h2 mb-1">Sản phẩm</h1><p class="text-secondary mb-0">Tìm kiếm trong toàn bộ catalog.</p></div></div>
+<form method="get" class="search-panel p-3 rounded-3 mb-4"><div class="input-group"><input name="q" value="@Model.Query" class="form-control" placeholder="Tìm theo tên hoặc SKU…" aria-label="Tìm sản phẩm" /><button class="btn btn-primary px-4" type="submit">Tìm kiếm</button></div></form>
+@if (!string.IsNullOrWhiteSpace(Model.Query)) { <p class="mb-4">Tìm thấy <strong>@Model.TotalCount</strong> sản phẩm cho “@Model.Query”.</p> }
+@if (!Model.Products.Any()) { <section class="empty-state text-center p-5 rounded-4"><div class="empty-icon">⌕</div><h2 class="h4">Không tìm thấy sản phẩm</h2><p class="text-secondary">Hãy thử từ khóa khác hoặc xem toàn bộ catalog.</p><a class="btn btn-outline-primary" asp-action="Index">Xóa bộ lọc</a></section> }
+else { <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 mb-4">
+@foreach (var product in Model.Products) { <div class="col"><article class="card product-card h-100"><div class="product-placeholder">⌁</div><div class="card-body d-flex flex-column">@if (Model.RecommendedSkus.Contains(product.Sku)) { <span class="badge bg-success align-self-start mb-2">Có gợi ý</span> }<h2 class="h6 card-title line-clamp-2">@product.Description</h2><p class="text-muted small mb-3">SKU: @product.Sku</p><div class="mt-auto d-flex justify-content-between align-items-center gap-2"><strong class="text-primary">@product.UnitPrice.ToString("N2")</strong><a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-sku="@product.Sku">Xem chi tiết</a></div></div></article></div> }
+</div>
+@if (Model.TotalPages > 1) { <nav aria-label="Phân trang sản phẩm"><ul class="pagination justify-content-center flex-wrap"><li class="page-item @(Model.Page == 1 ? "disabled" : "")"><a class="page-link" asp-action="Index" asp-route-q="@Model.Query" asp-route-page="@(Model.Page - 1)">Trước</a></li>@for (var i = startPage; i <= endPage; i++) { <li class="page-item @(i == Model.Page ? "active" : "")"><a class="page-link" asp-action="Index" asp-route-q="@Model.Query" asp-route-page="@i">@i</a></li> }<li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")"><a class="page-link" asp-action="Index" asp-route-q="@Model.Query" asp-route-page="@(Model.Page + 1)">Sau</a></li></ul></nav> }
+}
