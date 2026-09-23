@@ -16,13 +16,18 @@ public class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
         seedDirectory ??= Path.Combine(AppContext.BaseDirectory, "SeedData");
         var productsPath = Path.Combine(seedDirectory, "products.csv");
         var rulesPath = Path.Combine(seedDirectory, "rules.csv");
+        var creditsPath = Path.Combine(seedDirectory, "image_credits.csv");
         var products = ReadProducts(productsPath);
         foreach (var item in products)
         {
             var current = db.Products.SingleOrDefault(p => p.Sku == item.Sku);
             if (current is null) db.Products.Add(item);
-            else { current.Description = item.Description; current.UnitPrice = item.UnitPrice; current.Category = item.Category; }
+            else { current.Description = item.Description; current.UnitPrice = item.UnitPrice; current.Category = item.Category; current.ImageUrl = item.ImageUrl; }
         }
+        db.SaveChanges();
+
+        db.ImageCredits.RemoveRange(db.ImageCredits);
+        db.ImageCredits.AddRange(ReadImageCredits(creditsPath));
         db.SaveChanges();
 
         db.AssociationRules.RemoveRange(db.AssociationRules);
@@ -47,7 +52,19 @@ public class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
         if (!File.Exists(path)) { logger.LogWarning("Không tìm thấy products.csv: {Path}", path); return []; }
         using var reader = new StreamReader(path);
         using var csv = new CsvReader(reader, _csv);
-        return csv.GetRecords<ProductCsv>().Where(x => !string.IsNullOrWhiteSpace(x.Sku)).Select(x => new Product { Sku = x.Sku.Trim().ToUpperInvariant(), Description = x.Description, UnitPrice = x.UnitPrice, Category = string.IsNullOrWhiteSpace(x.Category) ? "General" : x.Category }).ToList();
+        return csv.GetRecords<ProductCsv>().Where(x => !string.IsNullOrWhiteSpace(x.Sku)).Select(x => new Product { Sku = x.Sku.Trim().ToUpperInvariant(), Description = x.Description, UnitPrice = x.UnitPrice, Category = string.IsNullOrWhiteSpace(x.Category) ? "General" : x.Category, ImageUrl = string.IsNullOrWhiteSpace(x.ImageUrl) ? null : x.ImageUrl }).ToList();
+    }
+
+    private List<ImageCredit> ReadImageCredits(string path)
+    {
+        if (!File.Exists(path)) return [];
+        using var reader = new StreamReader(path);
+        using var csv = new CsvReader(reader, _csv);
+        return csv.GetRecords<ImageCreditCsv>().Where(x => !string.IsNullOrWhiteSpace(x.ImageUrl)).Select(x => new ImageCredit
+        {
+            ImageUrl = x.ImageUrl, Title = x.Title, Creator = x.Creator, CreatorUrl = x.CreatorUrl,
+            License = x.License, LicenseUrl = x.LicenseUrl, SourceUrl = x.SourceUrl,
+        }).ToList();
     }
 
     private List<AssociationRule> ReadRules(string path)
@@ -58,6 +75,16 @@ public class DataSeeder(AppDbContext db, ILogger<DataSeeder> logger)
         return csv.GetRecords<RuleCsv>().Select(x => new AssociationRule { AntecedentSku = x.AntecedentSku.Trim().ToUpperInvariant(), ConsequentSku = x.ConsequentSku.Trim().ToUpperInvariant(), Support = x.Support, Confidence = x.Confidence, Lift = x.Lift }).ToList();
     }
 
-    private sealed class ProductCsv { [Name("sku")] public string Sku { get; set; } = ""; [Name("description")] public string Description { get; set; } = ""; [Name("unit_price")] public decimal UnitPrice { get; set; } [Name("category")] public string Category { get; set; } = "General"; }
+    private sealed class ProductCsv { [Name("sku")] public string Sku { get; set; } = ""; [Name("description")] public string Description { get; set; } = ""; [Name("unit_price")] public decimal UnitPrice { get; set; } [Name("category")] public string Category { get; set; } = "General"; [Name("image_url"), Optional] public string? ImageUrl { get; set; } }
     private sealed class RuleCsv { [Name("antecedent_sku")] public string AntecedentSku { get; set; } = ""; [Name("consequent_sku")] public string ConsequentSku { get; set; } = ""; [Name("support")] public double Support { get; set; } [Name("confidence")] public double Confidence { get; set; } [Name("lift")] public double Lift { get; set; } }
+    private sealed class ImageCreditCsv
+    {
+        [Name("image_url")] public string ImageUrl { get; set; } = "";
+        [Name("title")] public string Title { get; set; } = "";
+        [Name("creator")] public string Creator { get; set; } = "";
+        [Name("creator_url")] public string CreatorUrl { get; set; } = "";
+        [Name("license")] public string License { get; set; } = "";
+        [Name("license_url")] public string LicenseUrl { get; set; } = "";
+        [Name("source_url")] public string SourceUrl { get; set; } = "";
+    }
 }

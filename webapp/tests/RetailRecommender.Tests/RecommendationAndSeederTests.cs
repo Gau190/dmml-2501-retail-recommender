@@ -84,9 +84,47 @@ public class RecommendationAndSeederTests
         finally { Directory.Delete(first, true); Directory.Delete(second, true); }
     }
 
-    private static string WriteSeed(string products, string rules)
+    [Fact]
+    public void Csv_importer_reads_image_url_when_present_and_defaults_to_null()
+    {
+        using var db = Context();
+        var dir = WriteSeed(
+            "sku,description,unit_price,category,image_url\nA,Has image,1.00,General,https://example.org/a.jpg\nB,No image,2.00,General,\n",
+            "antecedent_sku,consequent_sku,support,confidence,lift\n");
+        try { new DataSeeder(db, NullLogger<DataSeeder>.Instance).Seed(dir); }
+        finally { Directory.Delete(dir, true); }
+        Assert.Equal("https://example.org/a.jpg", db.Products.Single(p => p.Sku == "A").ImageUrl);
+        Assert.Null(db.Products.Single(p => p.Sku == "B").ImageUrl);
+    }
+
+    [Fact]
+    public void Image_credits_are_loaded_and_replaced_on_reseed()
+    {
+        using var db = Context();
+        var first = WriteSeed(
+            "sku,description,unit_price,category\nA,Item,1.00,General\n",
+            "antecedent_sku,consequent_sku,support,confidence,lift\n",
+            "image_url,title,creator,creator_url,license,license_url,source_url\nhttps://example.org/a.jpg,Photo A,Alice,https://example.org/alice,by 2.0,https://creativecommons.org/licenses/by/2.0/,https://example.org/source-a\n");
+        var second = WriteSeed(
+            "sku,description,unit_price,category\nA,Item,1.00,General\n",
+            "antecedent_sku,consequent_sku,support,confidence,lift\n",
+            "image_url,title,creator,creator_url,license,license_url,source_url\nhttps://example.org/b.jpg,Photo B,Bob,https://example.org/bob,by 2.0,https://creativecommons.org/licenses/by/2.0/,https://example.org/source-b\n");
+        try
+        {
+            var seeder = new DataSeeder(db, NullLogger<DataSeeder>.Instance);
+            seeder.Seed(first);
+            Assert.Equal("Photo A", Assert.Single(db.ImageCredits).Title);
+            seeder.Seed(second);
+            Assert.Equal("Photo B", Assert.Single(db.ImageCredits).Title);
+        }
+        finally { Directory.Delete(first, true); Directory.Delete(second, true); }
+    }
+
+    private static string WriteSeed(string products, string rules, string? imageCredits = null)
     {
         var dir = Path.Combine(Path.GetTempPath(), "retail-seed-" + Guid.NewGuid()); Directory.CreateDirectory(dir);
-        File.WriteAllText(Path.Combine(dir, "products.csv"), products); File.WriteAllText(Path.Combine(dir, "rules.csv"), rules); return dir;
+        File.WriteAllText(Path.Combine(dir, "products.csv"), products); File.WriteAllText(Path.Combine(dir, "rules.csv"), rules);
+        if (imageCredits is not null) File.WriteAllText(Path.Combine(dir, "image_credits.csv"), imageCredits);
+        return dir;
     }
 }

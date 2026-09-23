@@ -9,4 +9,5 @@ public class Product
     [Required] public string Description { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
     [Required, MaxLength(128)] public string Category { get; set; } = "General";
+    public string? ImageUrl { get; set; }
 }

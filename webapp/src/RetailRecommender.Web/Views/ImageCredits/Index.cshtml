@@ -1,0 +1,35 @@
+@model IEnumerable<RetailRecommender.Web.Models.ImageCredit>
+@{ ViewData["Title"] = "Nguồn ảnh"; }
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li><li class="breadcrumb-item active" aria-current="page">Nguồn ảnh</li></ol></nav>
+<div class="mb-4">
+  <h1 class="h2 mb-1">Nguồn ảnh minh hoạ sản phẩm</h1>
+  <p class="text-secondary mb-0">
+    Online Retail II không đi kèm ảnh sản phẩm thật. Ảnh hiển thị trên trang là ảnh minh hoạ được chọn
+    theo <em>loại</em> sản phẩm (ví dụ "túi", "cốc", "nến"), không phải ảnh chụp đúng sản phẩm thật.
+    Toàn bộ ảnh lấy từ <a href="https://openverse.org" target="_blank" rel="noopener">Openverse</a>,
+    được cấp phép Creative Commons cho phép sử dụng thương mại; nguồn và tác giả được ghi rõ bên dưới
+    theo đúng yêu cầu của giấy phép.
+  </p>
+</div>
+@if (!Model.Any())
+{
+  <div class="empty-state p-4 rounded-4"><p class="mb-0 text-secondary">Chưa có ảnh minh hoạ nào được nạp.</p></div>
+}
+else
+{
+  <div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th>Ảnh</th><th>Tiêu đề</th><th>Tác giả</th><th>Giấy phép</th><th>Nguồn</th></tr></thead>
+    <tbody>
+      @foreach (var c in Model)
+      {
+        <tr>
+          <td><img src="@c.ImageUrl" alt="@c.Title" style="width:64px;height:64px;object-fit:cover;border-radius:.375rem" loading="lazy" /></td>
+          <td>@c.Title</td>
+          <td>@(string.IsNullOrWhiteSpace(c.CreatorUrl) ? c.Creator : null)@if (!string.IsNullOrWhiteSpace(c.CreatorUrl)) { <a href="@c.CreatorUrl" target="_blank" rel="noopener">@c.Creator</a> }</td>
+          <td>@(string.IsNullOrWhiteSpace(c.LicenseUrl) ? c.License : null)@if (!string.IsNullOrWhiteSpace(c.LicenseUrl)) { <a href="@c.LicenseUrl" target="_blank" rel="noopener">@c.License</a> }</td>
+          <td>@if (!string.IsNullOrWhiteSpace(c.SourceUrl)) { <a href="@c.SourceUrl" target="_blank" rel="noopener">Xem gốc</a> }</td>
+        </tr>
+      }
+    </tbody>
+  </table></div></div>
+}
