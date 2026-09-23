@@ -1,0 +1,10 @@
+@model IEnumerable<RetailRecommender.Web.Models.Product>
+@{ ViewData["Title"] = "Trang chủ"; }
+<h1>Danh mục sản phẩm</h1>
+@if (TempData["Message"] is string message) { <p class="alert alert-success">@message</p> }
+@foreach (var group in Model.GroupBy(p => p.Category))
+{
+    <h2>@group.Key</h2><ul>
+    @foreach (var product in group) { <li><a asp-controller="Products" asp-action="Details" asp-route-sku="@product.Sku">@product.Description</a> — @product.UnitPrice.ToString("N2")</li> }
+    </ul>
+}

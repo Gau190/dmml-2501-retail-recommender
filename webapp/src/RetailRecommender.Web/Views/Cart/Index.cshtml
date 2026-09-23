@@ -1,0 +1,7 @@
+@model IEnumerable<RetailRecommender.Web.Controllers.CartLine>
+@using RetailRecommender.Web.Models
+@{ ViewData["Title"] = "Giỏ hàng"; var suggestions = (IReadOnlyList<Recommendation>)ViewBag.Recommendations; }
+<h1>Giỏ hàng</h1>
+@if (!Model.Any()) { <p>Giỏ hàng trống.</p> } else { <table class="table"><thead><tr><th>Sản phẩm</th><th>Số lượng</th><th></th></tr></thead><tbody>@foreach (var line in Model) { <tr><td>@line.Product.Description</td><td>@line.Quantity</td><td><form asp-action="Remove" method="post"><input type="hidden" name="sku" value="@line.Product.Sku"/><button class="btn btn-link">Xóa</button></form></td></tr> }</tbody></table><form asp-controller="Orders" asp-action="Checkout" method="post"><button class="btn btn-success">Đặt hàng</button></form> }
+<h2>Gợi ý cho giỏ hàng</h2>
+@if (!suggestions.Any()) { <p>Chưa có dữ liệu khuyến nghị.</p> } else { <ul>@foreach (var x in suggestions) { <li><a asp-controller="Products" asp-action="Details" asp-route-sku="@x.Product.Sku">@x.Product.Description</a></li> }</ul> }

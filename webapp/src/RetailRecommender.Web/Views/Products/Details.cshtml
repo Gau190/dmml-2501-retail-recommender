@@ -1,0 +1,7 @@
+@model RetailRecommender.Web.Models.Product
+@using RetailRecommender.Web.Models
+@{ ViewData["Title"] = Model.Description; var suggestions = (IReadOnlyList<Recommendation>)ViewBag.Recommendations; }
+<h1>@Model.Description</h1><p>SKU: @Model.Sku</p><p>Giá: @Model.UnitPrice.ToString("N2")</p>
+<form asp-controller="Cart" asp-action="Add" method="post"><input type="hidden" name="sku" value="@Model.Sku" /><button class="btn btn-primary">Thêm vào giỏ</button></form>
+<h2>Khách hàng cũng mua</h2>
+@if (!suggestions.Any()) { <p>Chưa có dữ liệu khuyến nghị.</p> } else { <ul>@foreach (var x in suggestions) { <li><a asp-action="Details" asp-route-sku="@x.Product.Sku">@x.Product.Description</a> (confidence @x.Confidence.ToString("P0"), lift @x.Lift.ToString("N2"))</li> }</ul> }

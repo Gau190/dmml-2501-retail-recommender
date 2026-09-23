@@ -1,0 +1,5 @@
+@model IEnumerable<RetailRecommender.Web.Models.Product>
+@{ ViewData["Title"] = "Sản phẩm"; }
+<h1>Sản phẩm</h1><table class="table"><thead><tr><th>SKU</th><th>Mô tả</th><th>Giá</th><th></th></tr></thead><tbody>
+@foreach (var p in Model) { <tr><td>@p.Sku</td><td>@p.Description</td><td>@p.UnitPrice.ToString("N2")</td><td><a asp-action="Details" asp-route-sku="@p.Sku">Xem</a></td></tr> }
+</tbody></table>

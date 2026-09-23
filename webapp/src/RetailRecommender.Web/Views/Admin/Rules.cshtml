@@ -1,0 +1,5 @@
+@model IEnumerable<RetailRecommender.Web.Models.AssociationRule>
+@{ ViewData["Title"] = "Luật kết hợp"; }
+<h1>Luật kết hợp đã khai phá</h1><table class="table"><thead><tr><th>Nếu mua</th><th>Gợi ý</th><th>Support</th><th>Confidence</th><th>Lift</th></tr></thead><tbody>
+@foreach (var r in Model) { <tr><td>@r.AntecedentSku</td><td>@r.ConsequentSku</td><td>@r.Support</td><td>@r.Confidence</td><td>@r.Lift</td></tr> }
+</tbody></table>
