@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: retail-recommender
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./webapp/Dockerfile
+    dockerContext: ./webapp
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
